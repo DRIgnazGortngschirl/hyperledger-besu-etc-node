@@ -1,0 +1,78 @@
+version: '3.3'
+networks:
+  back-tier: null
+services:
+  besu:
+    ports:
+      - '8545:8545'
+      - '30303:30303'
+      - '9545:9545'
+    image: 'hyperledger/besu:latest'
+    volumes:
+      - '<PATH TO STORE YOUR CHAIN INFO>:/var/lib/besu/'
+    environment:
+      - BESU_NETWORK=classic
+      - BESU_DATA_PATH=/var/lib/besu/
+      - BESU_MAX_PEERS=1000
+      - BESU_METRICS_ENABLED=true
+      - BESU_METRICS_HOST=0.0.0.0
+      - BESU_METRICS_PORT=9545
+      - BESU_HOST_ALLOWLIST=0.0.0.0
+      - BESU_RPC_HTTP_ENABLED=true
+      - BESU_RPC_HTTP_CORS_ORIGINS="all"
+      - BESU_RPC_HTTP_AUTHENTICATION_ENABLED=false
+      - BESU_RPC_WS_API=ETH,NET,WEB3
+  prometheus:
+    image: 'prom/prometheus:v2.1.0'
+    volumes:
+      - './prometheus/:/etc/prometheus/'
+      - 'prometheus_data:/prometheus'
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - '9090:9090'
+    networks:
+      - back-tier
+    restart: always
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points'
+      - >-
+        ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+    ports:
+      - '9100:9100'
+    networks:
+      - back-tier
+    restart: always
+    deploy:
+      mode: global
+  grafana:
+    image: grafana/grafana:latest
+    user: '472'
+    depends_on:
+      - prometheus
+    ports:
+      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=<ADMIN PASSWORD>
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - './grafana.ini:/etc/grafana/grafana.ini'
+      - 'grafana_data:/var/lib/grafana'
+    networks:
+      - back-tier
+    restart: always
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+  pgdata: {}
