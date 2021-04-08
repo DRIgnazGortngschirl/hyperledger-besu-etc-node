@@ -19,3 +19,6 @@ $ docker-compose up -d
 ```
 
 🖥 Check out http://\<SERVER-IP>:3000 
+
+📝 Import thiss template .json file [Dashboard](https://gist.githubusercontent.com/MrMarioMichel/9a78a238b9627793124ff44073f5b8f1/raw/1af5e3f22ab06761547ba309f494afaaab08aea5/gistfile1.txt)
+
