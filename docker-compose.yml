@@ -7,7 +7,7 @@ services:
       - '8545:8545'
       - '30303:30303'
       - '9545:9545'
-    image: 'hyperledger/besu:latest'
+    image: 'hyperledger/besu:v21.10.2'
     volumes:
       - '<PATH TO STORE YOUR CHAIN INFO>:/var/lib/besu/'
     environment:
@@ -23,7 +23,7 @@ services:
       - BESU_RPC_HTTP_AUTHENTICATION_ENABLED=false
       - BESU_RPC_WS_API=ETH,NET,WEB3
   prometheus:
-    image: 'prom/prometheus:v2.1.0'
+    image: 'prom/prometheus:v2.31.1
     volumes:
       - './prometheus/:/etc/prometheus/'
       - 'prometheus_data:/prometheus'
