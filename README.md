@@ -3,7 +3,7 @@
 ### [👀 View example Grafana Dashboard](https://grafana.mariomichel.com/d/5S-6O8VZk/hyperledger-besu-node-at-ethereum-classic?orgId=1&refresh=10s)
 
 
-![etc-is-comming](https://pics.mariomichel.com/6s5r05.png)
+![etc-is-comming](https://pics.mariomichel.com/dqkyqi.png)
 
 ## 🏃 Run a node !
 
@@ -21,4 +21,4 @@ $ docker-compose up -d
 
 🖥 Check out http://\<SERVER-IP>:3000 
 
-📝 Import thiss template .json file [Dashboard](https://gist.githubusercontent.com/MrMarioMichel/f500904721b7ffbc928b7ba87cdf09e7/raw/67fccb0c77cd0c3f6ea464792719f86ed11ff61f/gistfile1.txt)
+📝 Import thiss template .json file [Dashboard](https://gist.githubusercontent.com/MrMarioMichel/95da2f980fb7e03be46f461d6cc48c4c/raw/e2134eaaeaa7ac75b94716d31551211e1b7d796e/gistfile1.txt)
