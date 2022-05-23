@@ -13,7 +13,7 @@
 $ git clone https://github.com/MrMarioMichel/hyperledger-besu-etc-node/ && cd hyperledger-besu-etc-node/
 ```
 
-Just set "PATH TO STORE YOUR CHAIN INFO" and also "ADMIN PASSWORD" in the docker-compose.yml
+❗ Just set "PATH TO STORE YOUR CHAIN INFO" and also "ADMIN PASSWORD" in the docker-compose.yml 🐳
 
 ```
 $ docker-compose up -d 
