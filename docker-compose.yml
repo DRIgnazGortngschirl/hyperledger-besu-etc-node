@@ -7,7 +7,7 @@ services:
       - '8545:8545'
       - '30303:30303'
       - '9545:9545'
-    image: 'hyperledger/besu:v22.4.1'
+    image: 'hyperledger/besu:v22.4.4'
     volumes:
       - '<PATH TO STORE YOUR CHAIN INFO>:/var/lib/besu/'
     environment:
