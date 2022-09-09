@@ -7,7 +7,7 @@ services:
       - '8545:8545'
       - '30303:30303'
       - '9545:9545'
-    image: 'hyperledger/besu:v22.7.0'
+    image: 'hyperledger/besu:v22.7.2'
     volumes:
       - '<PATH TO STORE YOUR CHAIN INFO>:/var/lib/besu/'
     environment:
@@ -57,7 +57,7 @@ services:
     deploy:
       mode: global
   grafana:
-    image: grafana/grafana:9.1.0
+    image: grafana/grafana:9.1.4
     user: '472'
     depends_on:
       - prometheus
