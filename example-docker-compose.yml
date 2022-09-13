@@ -1,0 +1,240 @@
+version: '3.3'
+networks:
+  web:
+    external: true
+  back-tier: null
+services:
+  besu:
+    networks:
+      - back-tier
+    ports:
+      - '8545:8545'
+      - '30303:30303'
+      - '9545:9545'
+    image: 'hyperledger/besu:22.7.2'
+    volumes:
+      - '/mnt/tank/besu/classic/:/var/lib/besu/'
+    environment:
+      - BESU_NETWORK=classic
+      - BESU_DATA_PATH=/var/lib/besu/
+#      - BESU_MAX_PEERS=1000
+      - BESU_METRICS_ENABLED=true
+      - BESU_METRICS_HOST=0.0.0.0
+      - BESU_METRICS_PORT=9545
+      - BESU_RPC_HTTP_ENABLED=true
+      - BESU_HOST_ALLOWLIST=*
+#      - BESU_HOST_WHITELIST=167.86.100.59,127.0.0.1,192.168.96.3,62.178.62.163,172.23.0.3
+#      - BESU_RPC_HTTP_TLS_ENABLED=true
+#      - BESU_HOST_WHITELIST="*"
+#      - BESU_LOGGING=DEBUG
+#      - BESU_HOST_ALLOWLIST="*"
+      - BESU_RPC_HTTP_HOST=0.0.0.0
+      - BESU_RPC_HTTP_PORT=8545
+      - BESU_RPC_HTTP_CORS_ORIGINS=*
+      - BESU_RPC_HTTP_API=ETH,NET,WEB3,ADMIN
+      - BESU_RPC_HTTP_AUTHENTICATION_ENABLED=false
+#      - BESU_RPC_WS_ENABLED=true
+#      - BESU_RPC_WS_HOST=0.0.0.0
+#      - BESU_RPC_WS_API=ETH,NET,WEB3
+#      - BESU_GRAPHQL_HTTP_ENABLED=true
+#      - BESU_GRAPHQL_HTTP_HOST=0.0.0.0
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+#    networks:
+#      - web
+#    labels:
+#      - "traefik.docker.network=web"
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.besu.entrypoints=websecure"
+#      - "traefik.http.routers.besu.rule=Host(`besu.mariomichel.com`)"
+#      - "traefik.http.routers.besu.tls=true"
+#      - traefik.http.services.besu.loadbalancer.server.port=8545
+  prometheus:
+    image: 'prom/prometheus:v2.38.0'
+    volumes:
+      - './prometheus/:/etc/prometheus/'
+      - 'prometheus_data:/prometheus'
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200d'
+    ports:
+      - '9090:9090'
+    networks:
+      - back-tier
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.entrypoints=websecure"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.mariomichel.com`)"
+      - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.routers.prometheus.middlewares=traefik-auth@docker"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+  node-exporter:
+    image: prom/node-exporter
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points'
+      - >-
+        ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+    ports:
+      - '9100:9100'
+    networks:
+      - back-tier
+    restart: unless-stopped
+    deploy:
+      mode: global
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+  grafana:
+    image: grafana/grafana:9.1.4
+    user: '472'
+    depends_on:
+      - prometheus
+#    ports:
+#      - '3000:3000'
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=<PASSWD STRIPED>
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - './grafana.ini:/etc/grafana/grafana.ini'
+      - 'grafana_data:/var/lib/grafana'
+    networks:
+      - back-tier
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.mariomichel.com`, `dashboard.etc-network.info`)"
+      - "traefik.http.routers.grafana.tls=true"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+  expedition:
+#    ports:
+#      - '8999:80'
+    image: 'expedition:latest'
+    networks:
+      - back-tier
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.explorer.entrypoints=websecure"
+      - "traefik.http.routers.explorer.rule=Host(`explorer.etc-network.info`)"
+      - "traefik.http.routers.explorer.tls=true"
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+    restart: unless-stopped
+
+#  ethereum-lite-explorer:
+#      ports:
+#         - '8999:80'
+#      environment:
+#         - 'APP_NODE_URL=http://mariomichel.com:8545'
+#      image: mrmariomichel/ethereum-lite-explorer:latest
+#   server:
+#     container_name: ethstats-network-server
+#     image: alethio/ethstats-network-server:latest
+#     restart: always
+#     depends_on:
+#       - deepstream
+#     # ports:
+#     #   - 127.0.0.1:3000:3000
+#     #   - 127.0.0.1:3030:3030
+#     #   - 127.0.0.1:8888:8888
+#     environment:
+#       - NETWORK_ID=61
+#       - NETWORK_NAME=mainnet
+#       - LITE=1
+#       - LITE_DB_PERSIST=0
+#       - LITE_API_PORT=3030
+#       - APP_PORT=3000
+#       - METRICS_PORT=8888
+#       - DEEPSTREAM_HOST=deepstream
+#     command: ["./bin/app.js", "-v"]
+#     links:
+#       - besu
+#   ethstats-cli:
+#     container_name: ethstats-client
+#     network_mode: host
+#     image: alethio/ethstats-cli
+#     command:
+#     - --register
+#     - --account-email 1108mario@gmail.com
+#     - --node-name etc-besu-node
+#     - --server-url http://server:3000 --client-url ws://besu:8546
+#   deepstream:
+#     container_name: ethstats-network-deepstream
+#     image: deepstreamio/deepstream.io:3.2.2
+#     restart: always
+#     # ports:
+#     #   - 127.0.0.1:6020:6020
+#   dashboard:
+#     container_name: ethstats-network-dashboard
+#     image: alethio/ethstats-network-dashboard:latest
+#     restart: always
+#     depends_on:
+#       - server
+#     volumes:
+#       - ../../config/nginx/conf.d:/etc/nginx/conf.d
+# #    ports:
+# #      - 0.0.0.0:8018:80
+#     networks:
+#        - web
+#     labels:
+#       - "traefik.docker.network=web"
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.etc.entrypoints=websecure"
+#       - "traefik.http.routers.etc.rule=Host(`etc.mariomichel.com`)"
+#       - "traefik.http.routers.etc.tls=true"
+#     environment:
+#       - NETSTATS_API_URL=http://127.0.0.1:3030
+#       - DS_URL=deepstream:6020
+#       - DS_USER=frontend
+#       - DS_PASS=
+
+  nodes-interface:
+     image: nodes-interface:latest
+     networks:
+        - web
+     labels:
+       - traefik.docker.network=web
+       - traefik.enable=true
+       - traefik.http.routers.nodes.entrypoints=websecure
+       - traefik.http.routers.nodes.rule=Host(`nodes.etc-network.info`)
+       - traefik.http.routers.nodes.tls=true
+     restart: unless-stopped
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+  pgdata: {}
+  walletstore: {}
