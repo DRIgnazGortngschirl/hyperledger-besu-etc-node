@@ -8,26 +8,25 @@ services:
     networks:
       - back-tier
     ports:
-      - '8545:8545'
+#      - '8545:8545'
       - '30303:30303'
       - '9545:9545'
-    image: 'hyperledger/besu:22.7.2'
+    image: 'hyperledger/besu:22.7.3'
     volumes:
       - '/mnt/tank/besu/classic/:/var/lib/besu/'
     environment:
       - BESU_NETWORK=classic
       - BESU_DATA_PATH=/var/lib/besu/
-#      - BESU_MAX_PEERS=1000
+      - BESU_MAX_PEERS=1000
       - BESU_METRICS_ENABLED=true
       - BESU_METRICS_HOST=0.0.0.0
       - BESU_METRICS_PORT=9545
       - BESU_RPC_HTTP_ENABLED=true
       - BESU_HOST_ALLOWLIST=*
-#      - BESU_HOST_WHITELIST=167.86.100.59,127.0.0.1,192.168.96.3,62.178.62.163,172.23.0.3
+#      - BESU_HOST_WHITELIST=167.86.100.59,127.0.0.1,192.168.96.3,62.178.62.163,172.23.0.5
 #      - BESU_RPC_HTTP_TLS_ENABLED=true
 #      - BESU_HOST_WHITELIST="*"
 #      - BESU_LOGGING=DEBUG
-#      - BESU_HOST_ALLOWLIST="*"
       - BESU_RPC_HTTP_HOST=0.0.0.0
       - BESU_RPC_HTTP_PORT=8545
       - BESU_RPC_HTTP_CORS_ORIGINS=*
@@ -44,15 +43,76 @@ services:
       options:
         max-size: 2000k
         max-file: '10'
-#    networks:
-#      - web
-#    labels:
-#      - "traefik.docker.network=web"
-#      - "traefik.enable=true"
-#      - "traefik.http.routers.besu.entrypoints=websecure"
-#      - "traefik.http.routers.besu.rule=Host(`besu.mariomichel.com`)"
-#      - "traefik.http.routers.besu.tls=true"
-#      - traefik.http.services.besu.loadbalancer.server.port=8545
+    networks:
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.besu.entrypoints=websecure"
+      - "traefik.http.routers.besu.rule=Host(`besu.etc-network.info`)"
+      - "traefik.http.routers.besu.tls=true"
+      - "traefik.http.services.besu.loadbalancer.server.port=8545"
+
+  geth:
+    image: etclabscore/core-geth:latest
+    command: --classic --gcmode "archive"  --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,debug  --http.corsdomain "*" --http.vhosts "*"
+    volumes:
+      - '/mnt/tank/geth/classic:/root/.ethereum'
+    networks:
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.geth.entrypoints=websecure"
+      - "traefik.http.routers.geth.rule=Host(`geth.etc-network.info`)"
+      - "traefik.http.routers.geth.tls=true"
+      - "traefik.http.services.geth.loadbalancer.server.port=8454"
+
+  geth-kotti:
+    image: etclabscore/core-geth:latest
+    command: --kotti --gcmode "archive" --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,debug  --http.corsdomain "*" --http.vhosts "*"
+    volumes:
+      - '/mnt/tank/geth-kotti/classic:/root/.ethereum'
+    networks:
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.gethkotti.entrypoints=websecure"
+      - "traefik.http.routers.gethkotti.rule=Host(`geth-kotti.etc-network.info`)"
+      - "traefik.http.routers.gethkotti.tls=true"
+      - "traefik.http.services.gethkotti.loadbalancer.server.port=8454"
+
+  geth-goerli:
+    image: etclabscore/core-geth:latest
+    command: --goerli --gcmode "archive" --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,debug  --http.corsdomain "*" --http.vhosts "*"
+    volumes:
+      - '/mnt/tank/geth-goerli/classic:/root/.ethereum'
+    networks:
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.gethgoerli.entrypoints=websecure"
+      - "traefik.http.routers.gethgoerli.rule=Host(`geth-goerli.etc-network.info`)"
+      - "traefik.http.routers.gethgoerli.tls=true"
+      - "traefik.http.services.gethgoerli.loadbalancer.server.port=8454"
+
+  geth-mordor:
+    image: etclabscore/core-geth:latest
+    command: --mordor --gcmode "archive" --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,debug  --http.corsdomain "*" --http.vhosts "*"
+    volumes:
+      - '/mnt/tank/geth-mordor/classic:/root/.ethereum'
+    networks:
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.gethmordor.entrypoints=websecure"
+      - "traefik.http.routers.gethmordor.rule=Host(`geth-mordor.etc-network.info`)"
+      - "traefik.http.routers.gethmordor.tls=true"
+      - "traefik.http.services.gethmordor.loadbalancer.server.port=8454"
+
   prometheus:
     image: 'prom/prometheus:v2.38.0'
     volumes:
@@ -82,6 +142,7 @@ services:
       options:
         max-size: 2000k
         max-file: '10'
+
   node-exporter:
     image: prom/node-exporter
     volumes:
@@ -106,13 +167,12 @@ services:
       options:
         max-size: 2000k
         max-file: '10'
+
   grafana:
-    image: grafana/grafana:9.1.4
+    image: grafana/grafana:9.1.6
     user: '472'
     depends_on:
       - prometheus
-#    ports:
-#      - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=<PASSWD STRIPED>
       - GF_USERS_ALLOW_SIGN_UP=false
@@ -134,6 +194,7 @@ services:
       options:
         max-size: 2000k
         max-file: '10'
+
   expedition:
 #    ports:
 #      - '8999:80'
@@ -144,9 +205,9 @@ services:
     labels:
       - "traefik.docker.network=web"
       - "traefik.enable=true"
-      - "traefik.http.routers.explorer.entrypoints=websecure"
-      - "traefik.http.routers.explorer.rule=Host(`explorer.etc-network.info`)"
-      - "traefik.http.routers.explorer.tls=true"
+      - "traefik.http.routers.explorerexpedition.entrypoints=websecure"
+      - "traefik.http.routers.explorerexpedition.rule=Host(`explorer-expedition.etc-network.info`)"
+      - "traefik.http.routers.explorerexpedition.tls=true"
     logging:
       driver: json-file
       options:
@@ -154,72 +215,107 @@ services:
         max-file: '10'
     restart: unless-stopped
 
-#  ethereum-lite-explorer:
-#      ports:
-#         - '8999:80'
-#      environment:
-#         - 'APP_NODE_URL=http://mariomichel.com:8545'
-#      image: mrmariomichel/ethereum-lite-explorer:latest
-#   server:
-#     container_name: ethstats-network-server
-#     image: alethio/ethstats-network-server:latest
-#     restart: always
-#     depends_on:
-#       - deepstream
-#     # ports:
-#     #   - 127.0.0.1:3000:3000
-#     #   - 127.0.0.1:3030:3030
-#     #   - 127.0.0.1:8888:8888
-#     environment:
-#       - NETWORK_ID=61
-#       - NETWORK_NAME=mainnet
-#       - LITE=1
-#       - LITE_DB_PERSIST=0
-#       - LITE_API_PORT=3030
-#       - APP_PORT=3000
-#       - METRICS_PORT=8888
-#       - DEEPSTREAM_HOST=deepstream
-#     command: ["./bin/app.js", "-v"]
-#     links:
-#       - besu
-#   ethstats-cli:
-#     container_name: ethstats-client
-#     network_mode: host
-#     image: alethio/ethstats-cli
-#     command:
-#     - --register
-#     - --account-email 1108mario@gmail.com
-#     - --node-name etc-besu-node
-#     - --server-url http://server:3000 --client-url ws://besu:8546
-#   deepstream:
-#     container_name: ethstats-network-deepstream
-#     image: deepstreamio/deepstream.io:3.2.2
-#     restart: always
-#     # ports:
-#     #   - 127.0.0.1:6020:6020
-#   dashboard:
-#     container_name: ethstats-network-dashboard
-#     image: alethio/ethstats-network-dashboard:latest
-#     restart: always
-#     depends_on:
-#       - server
-#     volumes:
-#       - ../../config/nginx/conf.d:/etc/nginx/conf.d
-# #    ports:
-# #      - 0.0.0.0:8018:80
-#     networks:
-#        - web
-#     labels:
-#       - "traefik.docker.network=web"
-#       - "traefik.enable=true"
-#       - "traefik.http.routers.etc.entrypoints=websecure"
-#       - "traefik.http.routers.etc.rule=Host(`etc.mariomichel.com`)"
-#       - "traefik.http.routers.etc.tls=true"
-#     environment:
-#       - NETSTATS_API_URL=http://127.0.0.1:3030
-#       - DS_URL=deepstream:6020
-#       - DS_USER=frontend
-#       - DS_PASS=
+  ethereum-lite-explorer:
+    networks:
+      - web
+#    ports:
+#      - '8123:80'
+    environment:
+      - 'APP_NODE_URL=https://besu.etc-network.info'
+    image: alethio/ethereum-lite-explorer
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.exploreralethio.entrypoints=websecure"
+      - "traefik.http.routers.exploreralethio.rule=Host(`explorer-alethio.etc-network.info`)"
+      - "traefik.http.routers.exploreralethio.tls=true"
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+    restart: unless-stopped
+
+  redis_db:
+    image: 'redis:alpine'
+    command: redis-server
+  db:
+    image: postgres:14
+    restart: always
+#    volumes:
+#      - '/mnt/tank/blockscout/db-index:/var/lib/postgresql/data'
+    environment:
+        POSTGRES_PASSWORD: '<PASSWD STRIPED>'
+        POSTGRES_USER: '<USER STRIPED>'
+        POSTGRES_HOST_AUTH_METHOD: 'trust'
+    ports:
+      - 7432:5432
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+
+        max-file: '10'
+    restart: unless-stopped
+  blockscout:
+    depends_on:
+      - db
+      - smart-contract-verifier
+      - redis_db
+    image: blockscout/blockscout:latest
+    build:
+      context: ..
+      dockerfile: ./docker/Dockerfile
+      args:
+        COIN: "Ethereum Classic"
+        CACHE_EXCHANGE_RATES_PERIOD: ""
+        DISABLE_READ_API: "false"
+        API_PATH: "/"
+        NETWORK_PATH: "/"
+        DISABLE_WEBAPP: "false"
+        DISABLE_WRITE_API: "false"
+        CACHE_ENABLE_TOTAL_GAS_USAGE_COUNTER: ""
+        CACHE_ADDRESS_WITH_BALANCES_UPDATE_INTERVAL: ""
+        SOCKET_ROOT: "/"
+        WOBSERVER_ENABLED: "false"
+        ADMIN_PANEL_ENABLED: ""
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+    restart: unless-stopped
+    links:
+      - db:database
+    command: bash -c "bin/blockscout eval \"Elixir.Explorer.ReleaseTasks.create_and_migrate()\" && bin/blockscout start"
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    env_file:
+      -  ./envs/common-blockscout.env
+    ports:
+      - 4000:4000
+    networks:
+      - web
+    labels:
+      - "traefik.docker.network=web"
+      - "traefik.enable=true"
+      - "traefik.http.routers.explorerblockscout.entrypoints=websecure"
+      - "traefik.http.routers.explorerblockscout.rule=Host(`explorer-blockscout.etc-network.info`)"
+      - "traefik.http.routers.explorerblockscout.tls=true"
+      - "traefik.http.services.explorerblockscout.loadbalancer.server.port=4000"
+  smart-contract-verifier:
+    image: ghcr.io/blockscout/smart-contract-verifier:${SMART_CONTRACT_VERIFIER_DOCKER_TAG:-latest}
+    restart: always
+    env_file:
+      -  ./envs/common-smart-contract-verifier.env
+    ports:
+      - 8043:8043
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+    restart: unless-stopped
 
   nodes-interface:
      image: nodes-interface:latest
