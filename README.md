@@ -25,4 +25,4 @@ $ docker-compose up -d
 
 🌐 If you want to be added a source on our site just write me on [Telegram](https:/t.me/MarioMichel) your prometheus server and Port and I will add it.
 
-![https://grafana.mariomichel.com](https://pics.mariomichel.com/6d5ekt.png)
+[https://dashboard.etc-network.info/](https://dashboard.etc-network.info)
