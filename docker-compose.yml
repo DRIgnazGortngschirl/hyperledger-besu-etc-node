@@ -7,7 +7,7 @@ services:
       - '8545:8545'
       - '30303:30303'
       - '9545:9545'
-    image: 'hyperledger/besu:v22.7.2'
+    image: 'hyperledger/besu:v22.10.1'
     volumes:
       - '<PATH TO STORE YOUR CHAIN INFO>:/var/lib/besu/'
     environment:
@@ -23,7 +23,7 @@ services:
       - BESU_RPC_HTTP_AUTHENTICATION_ENABLED=false
       - BESU_RPC_WS_API=ETH,NET,WEB3
   prometheus:
-    image: 'prom/prometheus:v2.38.0'
+    image: 'prom/prometheus:v2.40.5'
     volumes:
       - './prometheus/:/etc/prometheus/'
       - 'prometheus_data:/prometheus'
@@ -57,7 +57,7 @@ services:
     deploy:
       mode: global
   grafana:
-    image: grafana/grafana:9.1.4
+    image: grafana/grafana:9.3.1
     user: '472'
     depends_on:
       - prometheus
