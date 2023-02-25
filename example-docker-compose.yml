@@ -11,7 +11,7 @@ services:
 #      - '8545:8545'
       - '30303:30303'
       - '9545:9545'
-    image: 'hyperledger/besu:22.7.3'
+    image: 'hyperledger/besu:23.1.0'
     volumes:
       - '/mnt/tank/besu/classic/:/var/lib/besu/'
     environment:
@@ -54,7 +54,7 @@ services:
       - "traefik.http.services.besu.loadbalancer.server.port=8545"
 
   geth:
-    image: etclabscore/core-geth:latest
+    image: etclabscore/core-geth:v1.12.10
     command: --classic --gcmode "archive"  --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,debug  --http.corsdomain "*" --http.vhosts "*"
     volumes:
       - '/mnt/tank/geth/classic:/root/.ethereum'
@@ -69,7 +69,7 @@ services:
       - "traefik.http.services.geth.loadbalancer.server.port=8454"
 
   geth-kotti:
-    image: etclabscore/core-geth:latest
+    image: etclabscore/core-geth:v1.12.10
     command: --kotti --gcmode "archive" --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,debug  --http.corsdomain "*" --http.vhosts "*"
     volumes:
       - '/mnt/tank/geth-kotti/classic:/root/.ethereum'
@@ -84,7 +84,7 @@ services:
       - "traefik.http.services.gethkotti.loadbalancer.server.port=8454"
 
   geth-goerli:
-    image: etclabscore/core-geth:latest
+    image: etclabscore/core-geth:v1.12.10
     command: --goerli --gcmode "archive" --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,debug  --http.corsdomain "*" --http.vhosts "*"
     volumes:
       - '/mnt/tank/geth-goerli/classic:/root/.ethereum'
@@ -99,7 +99,7 @@ services:
       - "traefik.http.services.gethgoerli.loadbalancer.server.port=8454"
 
   geth-mordor:
-    image: etclabscore/core-geth:latest
+    image: etclabscore/core-geth:v1.12.10
     command: --mordor --gcmode "archive" --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,debug  --http.corsdomain "*" --http.vhosts "*"
     volumes:
       - '/mnt/tank/geth-mordor/classic:/root/.ethereum'
