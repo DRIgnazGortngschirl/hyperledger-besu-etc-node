@@ -21,7 +21,7 @@ $ docker-compose up -d
 
 🖥 Check out http://\<SERVER-IP>:3000 
 
-📝 Import thiss template .json file [Dashboard](https://gist.githubusercontent.com/DRIgnazGortngschirl/9e3fb514b80e0f906541c330f6dfa665/raw/3efb346e3c7a21301a7844dcf60bac6f6bd02392/gistfile1.txt)
+📝 Import thiss template .json file [Dashboard](https://gist.githubusercontent.com/DRIgnazGortngschirl/66eaa61b34c9d5c21fc79a1ca1e5b134/raw/bcfbbc3c21c1952c92f7d7a499f7eaeb7fda82a3/gistfile1.txt)
 
 🌐 If you want to be added a source on our site just write me on [Telegram](https:/t.me/MarioMichel) your prometheus server and Port and I will add it.
 
