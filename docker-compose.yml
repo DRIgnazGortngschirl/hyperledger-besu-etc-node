@@ -7,7 +7,7 @@ services:
       - '8545:8545'
       - '30303:30303'
       - '9545:9545'
-    image: 'hyperledger/besu:v22.10.1'
+    image: 'hyperledger/besu:v23.4.1'
     volumes:
       - '<PATH TO STORE YOUR CHAIN INFO>:/var/lib/besu/'
     environment:
@@ -22,8 +22,9 @@ services:
       - BESU_RPC_HTTP_CORS_ORIGINS="all"
       - BESU_RPC_HTTP_AUTHENTICATION_ENABLED=false
       - BESU_RPC_WS_API=ETH,NET,WEB3
+      
   prometheus:
-    image: 'prom/prometheus:v2.40.5'
+    image: 'prom/prometheus:v2.44.0'
     volumes:
       - './prometheus/:/etc/prometheus/'
       - 'prometheus_data:/prometheus'
@@ -37,27 +38,9 @@ services:
     networks:
       - back-tier
     restart: always
-  node-exporter:
-    image: prom/node-exporter
-    volumes:
-      - '/proc:/host/proc:ro'
-      - '/sys:/host/sys:ro'
-      - '/:/rootfs:ro'
-    command:
-      - '--path.procfs=/host/proc'
-      - '--path.sysfs=/host/sys'
-      - '--collector.filesystem.ignored-mount-points'
-      - >-
-        ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
-    ports:
-      - '9100:9100'
-    networks:
-      - back-tier
-    restart: always
-    deploy:
-      mode: global
+    
   grafana:
-    image: grafana/grafana:9.3.1
+    image: grafana/grafana:9.5.2
     user: '472'
     depends_on:
       - prometheus
@@ -72,6 +55,7 @@ services:
     networks:
       - back-tier
     restart: always
+    
 volumes:
   prometheus_data: {}
   grafana_data: {}
