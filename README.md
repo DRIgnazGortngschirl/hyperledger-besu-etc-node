@@ -3,7 +3,7 @@
 ### [👀 View example Grafana Dashboard](https://dashboard.etc-network.info/d/5S-6O8VZk/hyperledger-besu-nodes-at-ethereum-classic?orgId=1&refresh=5s)
 
 
-![etc-is-comming](https://pics.mariomichel.com/7pgeu2.png)
+![etc-is-comming](https://pics.mariomichel.com/y6b282.png)
 
 ## 🏃 Run a node !
 
