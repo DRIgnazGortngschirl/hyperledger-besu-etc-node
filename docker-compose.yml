@@ -7,24 +7,28 @@ services:
       - '8545:8545'
       - '30303:30303'
       - '9545:9545'
-    image: 'hyperledger/besu:v23.4.1'
+    image: 'hyperledger/besu:23.4.4'
     volumes:
       - '<PATH TO STORE YOUR CHAIN INFO>:/var/lib/besu/'
     environment:
       - BESU_NETWORK=classic
       - BESU_DATA_PATH=/var/lib/besu/
-      - BESU_MAX_PEERS=1000
+      - BESU_MAX_PEERS=16
       - BESU_METRICS_ENABLED=true
       - BESU_METRICS_HOST=0.0.0.0
       - BESU_METRICS_PORT=9545
-      - BESU_HOST_ALLOWLIST=0.0.0.0
       - BESU_RPC_HTTP_ENABLED=true
-      - BESU_RPC_HTTP_CORS_ORIGINS="all"
+      - BESU_HOST_ALLOWLIST=*
+      - BESU_RPC_HTTP_HOST=0.0.0.0
+      - BESU_RPC_HTTP_PORT=8545
+      - BESU_RPC_HTTP_CORS_ORIGINS=https://explorer-expedition.etc-network.info,https://chainlist.org,https://explorer-alethio.etc-network.info,https://explorer-blockscout.etc-network.info
+      - BESU_RPC_HTTP_API=ETH,NET,WEB3,ADMIN
       - BESU_RPC_HTTP_AUTHENTICATION_ENABLED=false
+      - BESU_RPC_WS_ENABLED=true
       - BESU_RPC_WS_API=ETH,NET,WEB3
-      
+      - BESU_RPC_WS_PORT=6174      
   prometheus:
-    image: 'prom/prometheus:v2.44.0'
+    image: 'prom/prometheus:v2.46.0'
     volumes:
       - './prometheus/:/etc/prometheus/'
       - 'prometheus_data:/prometheus'
@@ -38,9 +42,14 @@ services:
     networks:
       - back-tier
     restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
     
   grafana:
-    image: grafana/grafana:9.5.2
+    image: grafana/grafana:10.0.3
     user: '472'
     depends_on:
       - prometheus
@@ -52,11 +61,29 @@ services:
     volumes:
       - './grafana.ini:/etc/grafana/grafana.ini'
       - 'grafana_data:/var/lib/grafana'
-    networks:
-      - back-tier
-    restart: always
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10'
+
+  geth:
+    image: etclabscore/core-geth:latest
+    command: --classic  --syncmode full --gcmode archive --txlookuplimit=0 --http --http.port 8454 --http.addr 0.0.0.0 --http.api personal,eth,net,web3,txpool,trace,debug,admin --http.corsdomain "https://explorer-expedition.etc-network.info,https://chainlist.org,https://explorer-alethio.etc-network.info,https://explorer-blockscout.etc-network.info,https://multisig.etccooperative.org,https://multisig.dev.etccooperative.org" --http.vhosts "*"  --maxpeers 16
+#    command: db stats --classic
+#    command: --classic --vmodule 'rpc=5' debug RPC
+    volumes:
+      - '/mnt/tank/geth/classic:/root/.ethereum'
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 2000k
+        max-file: '10' 
     
 volumes:
   prometheus_data: {}
   grafana_data: {}
   pgdata: {}
+
